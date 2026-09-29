@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JOSVEXA TECHNOLOGY BOT HOST</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#07081a; --panel:#0f1130; --panel2:#151847; --edge:#262b70;
+  --violet:#7c5cff; --pink:#ff4d8d; --mint:#2ee6a6; --amber:#ffb84d;
+  --text:#e9ebff; --mute:#8a90c8; --r:14px;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgba(124,92,255,.28), transparent 60%),
+    radial-gradient(700px 500px at -10% 110%, rgba(255,77,141,.18), transparent 60%),
+    var(--ink);
+  color:var(--text); font-family:'Sora',system-ui,sans-serif; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.hidden{display:none!important}
+
+.btn{
+  border:0;border-radius:10px;padding:.7rem 1.1rem;font-weight:600;cursor:pointer;
+  background:linear-gradient(135deg,var(--violet),#5b3df0);color:#fff;
+  box-shadow:0 6px 24px rgba(124,92,255,.35);transition:transform .12s, box-shadow .12s, opacity .12s;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(124,92,255,.5)}
+.btn:disabled{opacity:.5;cursor:wait;transform:none}
+.btn.ghost{background:transparent;border:1px solid var(--edge);box-shadow:none;color:var(--text)}
+.btn.ghost:hover{border-color:var(--violet);background:rgba(124,92,255,.1)}
+.btn.go{background:linear-gradient(135deg,#19c98a,#0fa872);box-shadow:0 6px 24px rgba(46,230,166,.25)}
+.btn.warn{background:linear-gradient(135deg,var(--amber),#f08a1a);color:#1a1200;box-shadow:0 6px 24px rgba(255,184,77,.25)}
+.btn.danger{background:linear-gradient(135deg,var(--pink),#d81e63);box-shadow:0 6px 24px rgba(255,77,141,.3)}
+.field{width:100%;background:#0a0c28;border:1px solid var(--edge);border-radius:10px;padding:.75rem .9rem}
+.field:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,92,255,.25)}
+label{display:block;font-size:.85rem;color:var(--mute);margin:0 0 .35rem}
+
+/* login */
+#auth{min-height:100%;display:grid;place-items:center;padding:1.5rem}
+.auth-card{
+  width:min(440px,100%);background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--edge);border-radius:20px;padding:2rem;
+  box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(124,92,255,.15) inset;
+}
+.logo{display:flex;align-items:center;gap:.7rem;margin-bottom:1.4rem}
+.logo .mark{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.3rem;background:linear-gradient(135deg,var(--violet),var(--pink));box-shadow:0 0 28px rgba(255,77,141,.45)}
+.logo b{font-weight:800;letter-spacing:.02em;font-size:1.05rem;line-height:1.1}
+.logo small{display:block;color:var(--mute);font-weight:400;font-size:.75rem}
+.auth-card h1{font-size:1.7rem;font-weight:800;line-height:1.15;margin-bottom:.4rem}
+.auth-card p.sub{color:var(--mute);margin-bottom:1.4rem;font-size:.92rem}
+.stack>*+*{margin-top:.9rem}
+.msg{font-size:.86rem;min-height:1.2em}
+.msg.err{color:var(--pink)}
+
+/* shell */
+#app{display:grid;grid-template-columns:270px 1fr;min-height:100%}
+aside{
+  border-right:1px solid var(--edge);background:rgba(10,12,40,.7);backdrop-filter:blur(8px);
+  padding:1.4rem 1.1rem;display:flex;flex-direction:column;gap:1.4rem;position:sticky;top:0;height:100vh;
+}
+.user{margin-top:auto;font-size:.82rem;color:var(--mute);word-break:break-all}
+.user b{display:block;color:var(--text);font-weight:600;margin-bottom:.5rem}
+.nav{display:grid;gap:.4rem}
+.nav button{text-align:left;border:1px solid transparent;background:transparent;color:var(--mute);padding:.6rem .8rem;border-radius:10px;cursor:pointer;font-weight:600}
+.nav button.on{background:var(--panel2);border-color:var(--edge);color:var(--text)}
+.state{border:1px solid var(--edge);border-radius:var(--r);padding:1rem;background:var(--panel)}
+.state .dotrow{display:flex;align-items:center;gap:.6rem;font-weight:600}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--mute);box-shadow:0 0 0 4px rgba(138,144,200,.15)}
+.dot.running{background:var(--mint);box-shadow:0 0 0 4px rgba(46,230,166,.18),0 0 18px var(--mint);animation:pulse 1.8s infinite}
+.dot.starting{background:var(--amber);box-shadow:0 0 0 4px rgba(255,184,77,.18)}
+.dot.offline,.dot.stopped{background:var(--pink);box-shadow:0 0 0 4px rgba(255,77,141,.15)}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(46,230,166,0),0 0 22px var(--mint)}}
+.meters{margin-top:1rem}
+.meter+.meter{margin-top:.75rem}
+.meter .top{display:flex;justify-content:space-between;font-size:.78rem;color:var(--mute);margin-bottom:.3rem}
+.bar{height:6px;background:#0a0c28;border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--pink));transition:width .6s}
+main{padding:2rem clamp(1rem,3vw,2.6rem);max-width:1100px;width:100%}
+.head h2{font-size:1.6rem;font-weight:800}
+.head p{color:var(--mute);font-size:.92rem;margin-top:.2rem}
+
+.steps{display:flex;gap:.6rem;margin:1.5rem 0;flex-wrap:wrap}
+.step{flex:1;min-width:150px;border:1px solid var(--edge);border-radius:12px;padding:.7rem .9rem;color:var(--mute);font-size:.86rem;background:var(--panel);display:flex;gap:.6rem;align-items:center}
+.step .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:800;border:1px solid var(--edge);flex:none}
+.step.on{color:var(--text);border-color:var(--violet);box-shadow:0 0 24px rgba(124,92,255,.25)}
+.step.on .n{background:var(--violet);border-color:var(--violet);color:#fff}
+.step.done .n{background:var(--mint);border-color:var(--mint);color:#032}
+.step.done{color:var(--text)}
+
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--edge);border-radius:18px;padding:1.6rem}
+.card h3{font-size:1.15rem;margin-bottom:.3rem}
+.card p.hint{color:var(--mute);font-size:.9rem;margin-bottom:1.1rem}
+.drop{border:2px dashed var(--edge);border-radius:16px;padding:2.6rem 1rem;text-align:center;cursor:pointer;transition:border-color .15s, background .15s}
+.drop:hover,.drop.over{border-color:var(--violet);background:rgba(124,92,255,.08)}
+.drop .big{font-size:2rem}
+.drop b{display:block;margin:.4rem 0 .15rem}
+.drop span{color:var(--mute);font-size:.85rem}
+.chosen{margin-top:1rem;display:flex;gap:.8rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.chosen code{background:#0a0c28;border:1px solid var(--edge);border-radius:8px;padding:.35rem .7rem;font-size:.85rem}
+.row{display:flex;gap:.7rem;flex-wrap:wrap}
+.row .field{flex:1;min-width:200px}
+
+/* terminal */
+.term{border:1px solid var(--edge);border-radius:18px;overflow:hidden;background:#04051a;box-shadow:0 0 0 1px rgba(124,92,255,.15),0 24px 70px rgba(0,0,0,.6),0 0 60px rgba(124,92,255,.12)}
+.term-bar{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.7rem 1rem;background:var(--panel);border-bottom:1px solid var(--edge)}
+.term-bar .title{font-size:.85rem;color:var(--mute)}
+.term-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.term-actions .btn{padding:.45rem .8rem;font-size:.82rem;box-shadow:none}
+#log{height:min(52vh,460px);overflow:auto;padding:1rem 1.1rem;font-size:.82rem;line-height:1.55;white-space:pre-wrap;word-break:break-word;color:#c9cfff}
+#log .l-err{color:var(--pink)} #log .l-ok{color:var(--mint)} #log .l-cmd{color:var(--amber)}
+.cmd{display:flex;align-items:center;gap:.6rem;border-top:1px solid var(--edge);padding:.6rem 1rem;background:var(--panel)}
+.cmd .prompt{color:var(--mint);font-weight:600}
+.cmd input{flex:1;background:transparent;border:0;outline:none;font-family:'JetBrains Mono',monospace;font-size:.88rem}
+.cmd .btn{padding:.45rem .9rem;font-size:.82rem;box-shadow:none}
+.info{display:flex;gap:1.6rem;flex-wrap:wrap;margin:1.2rem 0;color:var(--mute);font-size:.86rem;align-items:center}
+.info b{color:var(--text);font-weight:600}
+
+/* admin */
+.ulist{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:1rem}
+.ulist th{text-align:left;color:var(--mute);font-weight:600;padding:.5rem .6rem;border-bottom:1px solid var(--edge)}
+.ulist td{padding:.65rem .6rem;border-bottom:1px solid rgba(38,43,112,.5);vertical-align:middle}
+.tag{display:inline-block;padding:.1rem .5rem;border-radius:999px;font-size:.72rem;border:1px solid var(--edge);color:var(--mute)}
+.tag.ok{color:var(--mint);border-color:rgba(46,230,166,.4)} .tag.off{color:var(--pink);border-color:rgba(255,77,141,.4)}
+.acts{display:flex;gap:.4rem;flex-wrap:wrap}
+.acts .btn{padding:.3rem .65rem;font-size:.78rem;box-shadow:none}
+.scroll-x{overflow-x:auto}
+
+.demo-bar{background:rgba(255,184,77,.12);border:1px solid rgba(255,184,77,.45);color:var(--amber);border-radius:12px;padding:.6rem 1rem;font-size:.85rem;margin-bottom:1.2rem}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin:1.2rem 0}
+.tile{border:1px solid var(--edge);border-radius:14px;padding:1rem 1.1rem;background:linear-gradient(180deg,var(--panel2),var(--panel));position:relative;overflow:hidden}
+.tile::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(var(--violet),var(--pink))}
+.tile small{display:block;color:var(--mute);font-size:.78rem}
+.tile b{display:block;font-size:1.15rem;font-weight:800;margin-top:.15rem;word-break:break-all}
+.act{display:flex;gap:1rem;padding:.55rem 0;border-bottom:1px solid rgba(38,43,112,.5);font-size:.84rem}
+.act:last-child{border-bottom:0}
+.act .at{color:var(--mute);flex:none;min-width:150px}
+.dbtag{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--mint);border:1px solid rgba(46,230,166,.35);border-radius:999px;padding:.1rem .6rem;margin-left:.5rem;vertical-align:middle}
+@media (max-width:820px){.tiles{grid-template-columns:repeat(2,1fr)}.act{flex-direction:column;gap:.1rem}}
+.toast{position:fixed;right:1.2rem;bottom:1.2rem;background:var(--panel2);border:1px solid var(--edge);border-radius:12px;padding:.8rem 1.1rem;font-size:.9rem;box-shadow:0 14px 40px rgba(0,0,0,.5);transform:translateY(20px);opacity:0;pointer-events:none;transition:.25s;max-width:min(380px,90vw);z-index:50}
+.toast.show{transform:none;opacity:1}
+.toast.err{border-color:var(--pink)} .toast.ok{border-color:var(--mint)}
+
+@media (max-width:820px){
+  #app{grid-template-columns:1fr}
+  aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--edge)}
+  .user{margin-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<section id="auth">
+  <div class="auth-card">
+    <div class="logo"><div class="mark">⚡</div><div><b>JOSVEXA TECHNOLOGY</b><small>BOT HOST</small></div></div>
+    <h1>Bot yako, mtandaoni masaa 24.</h1>
+    <p class="sub">Ingia kwa akaunti uliyopewa na msimamizi. Kujisajili hakuruhusiwi.</p>
+    <div class="stack">
+      <div><label for="email">Barua pepe</label><input id="email" class="field" type="email" autocomplete="username"></div>
+      <div><label for="pass">Neno la siri</label><input id="pass" class="field" type="password" autocomplete="current-password"></div>
+      <button id="authBtn" class="btn" style="width:100%" type="button">Ingia</button>
+      <div id="authMsg" class="msg err"></div>
+      <button id="demoBtn" class="btn ghost hidden" style="width:100%" type="button">Tazama muonekano wa dashibodi (demo)</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<section id="app" class="hidden">
+  <aside>
+    <div class="logo" style="margin:0"><div class="mark">⚡</div><div><b>JOSVEXA</b><small>BOT HOST</small></div></div>
+    <div class="nav hidden" id="nav">
+      <button id="navBot" class="on" type="button">Bot yangu</button>
+      <button id="navAdmin" type="button">Watumiaji</button>
+    </div>
+    <div class="state">
+      <div class="dotrow"><span id="dot" class="dot"></span><span id="stateTxt">Haijaanza</span></div>
+      <div class="meters">
+        <div class="meter"><div class="top"><span>CPU</span><span id="cpuT">–</span></div><div class="bar"><i id="cpuB"></i></div></div>
+        <div class="meter"><div class="top"><span>RAM</span><span id="ramT">–</span></div><div class="bar"><i id="ramB"></i></div></div>
+        <div class="meter"><div class="top"><span>Diski</span><span id="dskT">–</span></div><div class="bar"><i id="dskB"></i></div></div>
+      </div>
+      <div class="info" style="margin:1rem 0 0"><span>Uptime <b id="upT" class="mono">–</b></span></div>
+    </div>
+    <div class="user"><b id="who"></b><button id="outBtn" class="btn ghost" style="width:100%" type="button">Toka</button></div>
+  </aside>
+
+  <main>
+    <div id="demoBar" class="demo-bar hidden">Hali ya demo: data unayoona si ya kweli. Login halisi inahitaji seva ya JOSVEXA iliyowashwa.</div>
+    <!-- ADMIN VIEW -->
+    <div id="adminView" class="hidden">
+      <div class="head"><h2>Watumiaji</h2><p>Tengeneza email na password kwa kila mtu. Hakuna anayeweza kujisajili mwenyewe.</p></div>
+      <div class="card" style="margin-top:1.4rem">
+        <h3>Tengeneza akaunti mpya</h3>
+        <p class="hint">Mpe mtumiaji email na password uliyoweka hapa.</p>
+        <div class="row">
+          <input id="nuEmail" class="field" type="email" placeholder="email ya mtumiaji" autocomplete="off">
+          <input id="nuPass" class="field mono" type="text" placeholder="password (angalau 6)" autocomplete="off">
+          <button id="nuGen" class="btn ghost" type="button">Tengeneza password</button>
+          <button id="nuBtn" class="btn go" type="button">Fungua akaunti</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1.2rem">
+        <h3>Akaunti zote <span id="uCount" class="tag"></span></h3>
+        <div class="scroll-x"><table class="ulist"><thead><tr><th>Email</th><th>Hali</th><th>Bot</th><th>Ameingia mara ya mwisho</th><th></th></tr></thead><tbody id="uBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- BOT VIEW -->
+    <div id="botView">
+      <div class="head"><h2>Dashibodi ya bot</h2><p>Fuata hatua tatu hadi bot yako iwe hewani.</p></div>
+      <div class="steps">
+        <div class="step" id="s1"><span class="n">1</span>Upload faili</div>
+        <div class="step" id="s2"><span class="n">2</span>Namba ya simu</div>
+        <div class="step" id="s3"><span class="n">3</span>Endesha bot</div>
+      </div>
+
+      <div class="card hidden" id="p1">
+        <h3>Upload faili la bot</h3>
+        <p class="hint">Unaweza kupakia faili moja (.js, .py, .json) au folda nzima kama .zip (hadi 20MB).</p>
+        <div class="drop" id="drop" tabindex="0" role="button" aria-label="Chagua faili la bot">
+          <div class="big">📦</div><b>Buruta faili hapa, au bonyeza kuchagua</b><span>.zip · .js · .py · .json</span>
+        </div>
+        <input id="file" type="file" class="hidden" accept=".zip,.js,.py,.json,.txt,.env">
+        <div class="chosen hidden" id="chosen"><code id="fname"></code><button id="upBtn" class="btn" type="button">Upload na uendelee</button></div>
+      </div>
+
+      <div class="card hidden" id="p2">
+        <h3>Weka namba ya simu</h3>
+        <p class="hint">Andika namba pamoja na code ya nchi bila +, mfano <span class="mono">255712345678</span>. Bot yako itaipata kwenye <span class="mono">PHONE_NUMBER</span>.</p>
+        <div class="row">
+          <input id="phone" class="field mono" inputmode="numeric" placeholder="255712345678" autocomplete="tel">
+          <button id="phoneBtn" class="btn go" type="button">Hifadhi na uwashe bot</button>
+        </div>
+      </div>
+
+      <div id="p3" class="hidden">
+        <div class="tiles">
+          <div class="tile"><small>Hali ya bot</small><b id="tState">–</b></div>
+          <div class="tile"><small>Uptime</small><b id="tUp" class="mono">–</b></div>
+          <div class="tile"><small>Mafaili</small><b id="tFiles" class="mono">–</b></div>
+          <div class="tile"><small>Namba ya simu</small><b id="tPhone" class="mono">–</b></div>
+        </div>
+        <div class="info">
+          <span>Faili <b id="iFile" class="mono">–</b></span>
+          <span>Namba <b id="iPhone" class="mono">–</b></span>
+          <span>Runtime <b id="iRun" class="mono">–</b></span>
+          <button id="phoneEdit" class="btn ghost" style="padding:.3rem .7rem;font-size:.8rem" type="button">Badili namba</button>
+          <button id="reup" class="btn ghost" style="padding:.3rem .7rem;font-size:.8rem" type="button">Upload upya</button>
+        </div>
+        <div class="term">
+          <div class="term-bar">
+            <div class="title mono">console</div>
+            <div class="term-actions">
+              <button class="btn go" data-act="start" type="button">Washa</button>
+              <button class="btn warn" data-act="restart" type="button">Restart bot</button>
+              <button class="btn ghost" data-act="stop" type="button">Zima</button>
+              <button class="btn danger" data-act="kill" type="button">Lazimisha kuzima</button>
+            </div>
+          </div>
+          <div id="log" class="mono" aria-live="polite">Inasubiri logs…</div>
+          <form class="cmd" id="cmdForm" autocomplete="off">
+            <span class="prompt mono">$</span>
+            <input id="cmd" class="mono" placeholder="andika command yako kisha Enter" maxlength="500">
+            <button class="btn" type="submit">Tuma</button>
+          </form>
+        </div>
+        <div class="card" style="margin-top:1.2rem">
+          <h3>Historia ya shughuli <span class="dbtag">● Firebase Realtime Database</span></h3>
+          <p class="hint">Kila upload, namba, command na power action vinahifadhiwa kwenye database yako.</p>
+          <div id="actList" class="mono"><div class="act"><span>Inapakia…</span></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+/* ---------- utils ---------- */
+let toastT;
+function toast(msg, type) {
+  const t = $('toast'); t.textContent = msg; t.className = 'toast show ' + (type || '');
+  clearTimeout(toastT); toastT = setTimeout(() => t.className = 'toast', 5000);
+}
+window.addEventListener('error', (e) => toast('Hitilafu ya ukurasa: ' + e.message, 'err'));
+window.addEventListener('unhandledrejection', (e) => toast('Hitilafu: ' + ((e.reason && e.reason.message) || e.reason), 'err'));
+const fmtB = (b) => b >= 1073741824 ? (b / 1073741824).toFixed(1) + ' GB' : (b / 1048576).toFixed(0) + ' MB';
+const fmtUp = (ms) => { const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return (d ? d + 'd ' : '') + h + 'h ' + m + 'm'; };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- session (token inatunzwa kwenye browser, hakuna Firebase SDK) ---------- */
+const SKEY = 'josvexa_session';
+let session = null, myEmail = '', isAdmin = false;
+try { session = JSON.parse(localStorage.getItem('josvexa_session') || 'null'); } catch { session = null; }
+function saveSession(s) { session = s; try { s ? localStorage.setItem(SKEY, JSON.stringify(s)) : localStorage.removeItem(SKEY); } catch {} }
+
+async function rawFetch(path, opts) {
+  let r;
+  try { r = await fetch(path, opts); } catch { throw new Error('Seva haipatikani. Hakikisha seva inafanya kazi (npm start) na umefungua ukurasa kupitia http://, si kwa kubonyeza faili.'); }
+  const ct = r.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) throw new Error('Ukurasa huu hauna seva ya JOSVEXA nyuma yake (jibu ' + r.status + '). Endesha server.js kisha ufungue anwani ya seva yako, si preview ya Claude wala faili la HTML peke yake.');
+  const j = await r.json().catch(() => ({}));
+  return { r, j };
+}
+async function renew() {
+  if (!session || !session.refreshToken) throw new Error('Ingia tena.');
+  const { r, j } = await rawFetch('/api/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: session.refreshToken }) });
+  if (!r.ok) { saveSession(null); throw new Error(j.error || 'Session imeisha. Ingia tena.'); }
+  saveSession({ ...session, idToken: j.idToken, refreshToken: j.refreshToken, exp: Date.now() + (j.expiresIn - 60) * 1000 });
+}
+async function api(path, opts = {}, retried = false) {
+  if (DEMO) return demoApi(path, opts);
+  if (!session) throw new Error('Ingia kwanza.');
+  if (Date.now() > (session.exp || 0)) await renew();
+  const headers = { Authorization: 'Bearer ' + session.idToken };
+  const o = { ...opts, headers };
+  if (opts.body && !(opts.body instanceof FormData)) { headers['Content-Type'] = 'application/json'; o.body = JSON.stringify(opts.body); }
+  const { r, j } = await rawFetch(path, o);
+  if (r.status === 401 && !retried) { await renew(); return api(path, opts, true); }
+  if (!r.ok) { const err = new Error(j.error || 'Hitilafu ' + r.status); err.status = r.status; throw err; }
+  return j;
+}
+
+/* ---------- login ---------- */
+async function doAuth() {
+  const email = $('email').value.trim(), pass = $('pass').value, msg = $('authMsg');
+  msg.textContent = '';
+  if (!email || !pass) { msg.textContent = 'Weka email na password.'; return; }
+  $('authBtn').disabled = true; $('authBtn').textContent = 'Inaingia…';
+  try {
+    const { r, j } = await rawFetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: pass }) });
+    if (!r.ok) throw new Error(j.error || 'Kuingia kumeshindikana.');
+    saveSession({ idToken: j.idToken, refreshToken: j.refreshToken, exp: Date.now() + (j.expiresIn - 60) * 1000 });
+    $('pass').value = '';
+    await enterApp(j.email, j.admin);
+  } catch (e) { msg.textContent = e.message; if (/hauna seva|Seva haipatikani/.test(e.message)) $('demoBtn').classList.remove('hidden'); }
+  $('authBtn').disabled = false; $('authBtn').textContent = 'Ingia';
+}
+$('authBtn').onclick = doAuth;
+['email', 'pass'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') doAuth(); }));
+$('outBtn').onclick = logout;
+function logout() {
+  DEMO = false; $('demoBar').classList.add('hidden');
+  clearInterval(poll); saveSession(null); lastLog = ''; picked = null; editing = null;
+  $('app').classList.add('hidden'); $('auth').classList.remove('hidden'); $('authMsg').textContent = '';
+}
+if (location.protocol === 'file:') {
+  $('authMsg').textContent = 'Umefungua faili moja kwa moja. Anzisha seva (npm start) kisha fungua http://localhost:3000';
+  $('demoBtn').classList.remove('hidden');
+}
+
+/* ---------- state ---------- */
+let poll = null, botStep = null, editing = null, lastLog = '', busy = false;
+async function enterApp(email, admin) {
+  myEmail = email; isAdmin = !!admin;
+  $('auth').classList.add('hidden'); $('app').classList.remove('hidden');
+  $('who').textContent = email + (isAdmin ? ' (admin)' : '');
+  $('nav').classList.toggle('hidden', !isAdmin);
+  showView('bot');
+  try { await refresh(); } catch (e) { toast(e.message, 'err'); }
+  clearInterval(poll); poll = setInterval(tick, 3000);
+}
+async function tick() {
+  if (document.hidden || busy || !session) return;
+  busy = true;
+  try {
+    await refresh();
+    if (botStep === 'ready' && !editing && !$('botView').classList.contains('hidden')) { await logs(); await acts(); }
+  } catch (e) { if (!session) logout(); }
+  busy = false;
+}
+(async function boot() {
+  if (!session) return;
+  try { const me = await api('/api/me'); await enterApp(me.email, me.admin); }
+  catch (e) { if (!session || e.status === 401 || e.status === 403) { saveSession(null); $('authMsg').textContent = e.message; } else { $('authMsg').textContent = e.message; } }
+})();
+
+function showStep(step) {
+  const s = editing || step || 'upload';
+  ['p1', 'p2', 'p3'].forEach((id) => $(id).classList.add('hidden'));
+  $({ upload: 'p1', phone: 'p2', ready: 'p3' }[s]).classList.remove('hidden');
+  const idx = { upload: 1, phone: 2, ready: 3 }[s];
+  [1, 2, 3].forEach((n) => { $('s' + n).className = 'step' + (n < idx ? ' done' : n === idx ? ' on' : ''); });
+}
+
+async function refresh() {
+  const j = await api('/api/status');
+  botStep = j.bot ? j.bot.step : 'upload';
+  showStep(botStep);
+  const r = j.resources;
+  if (r) {
+    $('dot').className = 'dot ' + (r.state || '');
+    $('stateTxt').textContent = ({ running: 'Iko hewani', starting: 'Inawaka…', stopping: 'Inazima…', offline: 'Imezimwa', stopped: 'Imezimwa' })[r.state] || r.state || '–';
+    const pct = (u, l) => l ? Math.min(100, u / l * 100) : 0;
+    $('cpuT').textContent = r.cpu.usedPercent.toFixed(0) + '%'; $('cpuB').style.width = pct(r.cpu.usedPercent, r.cpu.limitPercent) + '%';
+    $('ramT').textContent = fmtB(r.memory.usedBytes) + ' / ' + fmtB(r.memory.limitBytes); $('ramB').style.width = pct(r.memory.usedBytes, r.memory.limitBytes) + '%';
+    $('dskT').textContent = fmtB(r.disk.usedBytes) + ' / ' + fmtB(r.disk.limitBytes); $('dskB').style.width = pct(r.disk.usedBytes, r.disk.limitBytes) + '%';
+    $('upT').textContent = r.state === 'running' ? fmtUp(r.uptimeMs) : '–';
+  } else {
+    $('dot').className = 'dot'; $('stateTxt').textContent = j.bot ? 'Inajiandaa…' : 'Haijaanza';
+    ['cpuT', 'ramT', 'dskT', 'upT'].forEach((id) => $(id).textContent = '–'); ['cpuB', 'ramB', 'dskB'].forEach((id) => $(id).style.width = '0');
+  }
+  if (j.bot) {
+    $('iFile').textContent = j.bot.fileName || '–'; $('iPhone').textContent = j.bot.phone || '–'; $('iRun').textContent = j.bot.runtime || '–';
+    if (j.bot.phone && !$('phone').value) $('phone').value = j.bot.phone;
+  }
+  $('tState').textContent = $('stateTxt').textContent; $('tUp').textContent = $('upT').textContent;
+  $('tFiles').textContent = j.bot && j.bot.fileCount ? j.bot.fileCount : '–'; $('tPhone').textContent = j.bot && j.bot.phone ? j.bot.phone : '–';
+}
+
+async function acts() {
+  const j = await api('/api/activity'), el = $('actList'), items = j.items || [];
+  el.innerHTML = items.length
+    ? items.map((a) => `<div class="act"><span class="at">${esc(new Date(a.t).toLocaleString())}</span><span>${esc(a.text)}</span></div>`).join('')
+    : '<div class="act"><span>Hakuna shughuli bado.</span></div>';
+}
+
+async function logs() {
+  const j = await api('/api/logs');
+  const lines = j.lines || [], txt = lines.join('\n');
+  if (txt === lastLog) return; lastLog = txt;
+  const el = $('log'), stick = el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
+  el.innerHTML = lines.map((l) => {
+    const c = /error|fail|exception|traceback/i.test(l) ? 'l-err' : /connected|online|ready|success|started/i.test(l) ? 'l-ok' : '';
+    return `<div class="${c}">${esc(l)}</div>`;
+  }).join('') || 'Hakuna logs bado.';
+  if (stick) el.scrollTop = el.scrollHeight;
+}
+
+/* ---------- upload ---------- */
+let picked = null;
+const drop = $('drop');
+function pick(f) { if (!f) return; picked = f; $('fname').textContent = f.name + ' (' + (f.size / 1024).toFixed(0) + ' KB)'; $('chosen').classList.remove('hidden'); }
+drop.onclick = () => $('file').click();
+drop.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('file').click(); } };
+$('file').onchange = (e) => pick(e.target.files[0]);
+['dragover', 'dragenter'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', (e) => pick(e.dataTransfer.files[0]));
+$('upBtn').onclick = async () => {
+  if (!picked) return; const b = $('upBtn'); b.disabled = true; b.textContent = 'Inapakia… subiri';
+  try {
+    const fd = new FormData(); fd.append('file', picked);
+    const j = await api('/api/upload', { method: 'POST', body: fd });
+    toast('Imepakiwa: mafaili ' + j.files, 'ok'); editing = null; picked = null; $('file').value = ''; $('chosen').classList.add('hidden'); await refresh();
+  } catch (e) { toast(e.message, 'err'); }
+  b.disabled = false; b.textContent = 'Upload na uendelee';
+};
+$('reup').onclick = () => { editing = 'upload'; showStep(); };
+$('phoneEdit').onclick = () => { editing = 'phone'; showStep(); };
+
+/* ---------- namba ya simu ---------- */
+$('phoneBtn').onclick = async () => {
+  const b = $('phoneBtn'); b.disabled = true;
+  try { await api('/api/phone', { method: 'POST', body: { phone: $('phone').value } }); toast('Namba imehifadhiwa, bot inawashwa.', 'ok'); editing = null; await refresh(); }
+  catch (e) { toast(e.message, 'err'); }
+  b.disabled = false;
+};
+
+/* ---------- power + command ---------- */
+document.querySelectorAll('[data-act]').forEach((b) => b.onclick = async () => {
+  const act = b.dataset.act; b.disabled = true;
+  try {
+    await api('/api/power', { method: 'POST', body: { action: act } });
+    toast({ start: 'Inawashwa…', restart: 'Inarestart…', stop: 'Inazimwa…', kill: 'Imelazimishwa kuzima.' }[act], 'ok');
+    setTimeout(() => refresh().catch(() => {}), 1500);
+  } catch (e) { toast(e.message, 'err'); }
+  b.disabled = false;
+});
+$('cmdForm').onsubmit = async (e) => {
+  e.preventDefault(); const c = $('cmd').value.trim(); if (!c) return;
+  const log = $('log'); log.insertAdjacentHTML('beforeend', `<div class="l-cmd">$ ${esc(c)}</div>`); log.scrollTop = log.scrollHeight;
+  $('cmd').value = '';
+  try { await api('/api/command', { method: 'POST', body: { command: c } }); setTimeout(() => logs().catch(() => {}), 900); }
+  catch (err) { toast(err.message, 'err'); }
+};
+
+/* ---------- demo (kuona muonekano bila seva) ---------- */
+let DEMO = false;
+const D = { file: null, phone: null, step: 'upload', power: 'offline', t0: 0, cmds: [], acts: [],
+  users: [{ uid: 'a1', email: 'josvexatechnology@gmail.com', disabled: false, isAdmin: true, approved: true, createdAt: '2026-01-01', lastSignIn: new Date().toISOString(), bot: null },
+          { uid: 'u1', email: 'juma@example.com', disabled: false, isAdmin: false, approved: true, createdAt: '2026-02-01', lastSignIn: null, bot: { fileName: 'bot.zip', phone: '255712345678', step: 'ready' } }] };
+const dAct = (t) => D.acts.unshift({ t: Date.now(), text: t });
+async function demoApi(path, opts = {}) {
+  await new Promise((r) => setTimeout(r, 250));
+  const b = opts.body && !(opts.body instanceof FormData) ? opts.body : {};
+  if (path === '/api/me') return { email: 'josvexatechnology@gmail.com', admin: true };
+  if (path === '/api/status') {
+    const running = D.step === 'ready' && D.power === 'running';
+    return { bot: D.file ? { fileName: D.file, fileCount: 4, phone: D.phone, step: D.step, runtime: 'nodejs' } : null,
+      resources: D.file ? { state: running ? 'running' : 'offline', cpu: { usedPercent: running ? 8 + Math.random() * 10 : 0, limitPercent: 50 },
+        memory: { usedBytes: running ? 140e6 : 0, limitBytes: 512e6 }, disk: { usedBytes: 48e6, limitBytes: 1024e6 }, network: {}, uptimeMs: running ? Date.now() - D.t0 : 0 } : null };
+  }
+  if (path === '/api/upload') { D.file = (opts.body.get('file') || {}).name || 'bot.zip'; D.step = D.phone ? 'ready' : 'phone'; dAct('Upload: ' + D.file + ' (mafaili 4)'); return { ok: true, files: 4, step: D.step }; }
+  if (path === '/api/phone') { D.phone = String(b.phone || '').replace(/\D/g, ''); D.step = 'ready'; D.power = 'running'; D.t0 = Date.now(); dAct('Namba ya simu imewekwa: ' + D.phone); return { ok: true }; }
+  if (path === '/api/power') { D.power = b.action === 'start' || b.action === 'restart' ? 'running' : 'offline'; if (D.power === 'running') D.t0 = Date.now(); dAct('Power: ' + b.action); return { ok: true }; }
+  if (path === '/api/command') { D.cmds.push(b.command); dAct('Command: ' + b.command); return { ok: true }; }
+  if (path === '/api/logs') return { lines: D.power !== 'running' ? ['[system] Bot imezimwa.'] : ['Starting bot…', 'Loading plugins (12)…', 'Connected to WhatsApp', 'Bot is online!'].concat(D.cmds.map((c) => '> ' + c + ' (imepokelewa)')) };
+  if (path === '/api/activity') return { items: D.acts.slice(0, 30) };
+  if (path === '/api/admin/users' && !opts.method) return { users: D.users };
+  if (path === '/api/admin/users') { D.users.push({ uid: 'u' + D.users.length, email: b.email, disabled: false, isAdmin: false, approved: true, createdAt: new Date().toISOString(), lastSignIn: null, bot: null }); return { ok: true }; }
+  if (/\/disable$/.test(path)) { const u = D.users.find((x) => path.includes(x.uid)); if (u) u.disabled = !!b.disabled; return { ok: true }; }
+  if (/\/password$/.test(path)) return { ok: true };
+  if (opts.method === 'DELETE') { D.users = D.users.filter((x) => !path.endsWith('/' + x.uid)); return { ok: true }; }
+  throw new Error('Demo: haipatikani');
+}
+$('demoBtn').onclick = async () => {
+  DEMO = true; session = { idToken: 'demo', exp: Infinity }; $('demoBar').classList.remove('hidden');
+  await enterApp('josvexatechnology@gmail.com', true);
+};
+
+/* ---------- admin ---------- */
+function showView(v) {
+  const adm = v === 'admin' && isAdmin;
+  $('adminView').classList.toggle('hidden', !adm); $('botView').classList.toggle('hidden', adm);
+  $('navBot').classList.toggle('on', !adm); $('navAdmin').classList.toggle('on', adm);
+  if (adm) loadUsers();
+}
+$('navBot').onclick = () => showView('bot'); $('navAdmin').onclick = () => showView('admin');
+function genPass() {
+  const c = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789', a = new Uint32Array(10); crypto.getRandomValues(a);
+  return Array.from(a, (n) => c[n % c.length]).join('');
+}
+$('nuGen').onclick = () => { $('nuPass').value = genPass(); };
+$('nuBtn').onclick = async () => {
+  const email = $('nuEmail').value.trim(), password = $('nuPass').value;
+  const b = $('nuBtn'); b.disabled = true;
+  try {
+    await api('/api/admin/users', { method: 'POST', body: { email, password } });
+    toast('Akaunti imefunguliwa. Mpe: ' + email + ' / ' + password, 'ok');
+    $('nuEmail').value = ''; $('nuPass').value = ''; loadUsers();
+  } catch (e) { toast(e.message, 'err'); }
+  b.disabled = false;
+};
+async function loadUsers() {
+  try {
+    const j = await api('/api/admin/users');
+    $('uCount').textContent = j.users.length;
+    const body = $('uBody'); body.innerHTML = '';
+    j.users.forEach((u) => {
+      const tr = document.createElement('tr');
+      const st = u.disabled ? '<span class="tag off">Imezimwa</span>' : u.isAdmin ? '<span class="tag ok">Admin</span>' : u.approved ? '<span class="tag ok">Hai</span>' : '<span class="tag off">Haijaidhinishwa</span>';
+      const bot = u.bot ? esc((u.bot.fileName || 'bot') + (u.bot.phone ? ' · ' + u.bot.phone : '')) : '<span style="color:var(--mute)">–</span>';
+      tr.innerHTML = `<td class="mono">${esc(u.email || '')}</td><td>${st}</td><td class="mono">${bot}</td><td>${u.lastSignIn ? esc(new Date(u.lastSignIn).toLocaleString()) : '–'}</td><td></td>`;
+      if (!u.isAdmin) {
+        const acts = document.createElement('div'); acts.className = 'acts';
+        const mk = (t, cls, fn) => { const bt = document.createElement('button'); bt.className = 'btn ' + cls; bt.type = 'button'; bt.textContent = t; bt.onclick = fn; acts.appendChild(bt); };
+        mk('Badili password', 'ghost', async () => {
+          const p = prompt('Password mpya ya ' + u.email + ' (angalau 6):', genPass()); if (!p) return;
+          try { await api(`/api/admin/users/${u.uid}/password`, { method: 'POST', body: { password: p } }); toast('Password imebadilishwa: ' + p, 'ok'); } catch (e) { toast(e.message, 'err'); }
+        });
+        mk(u.disabled ? 'Washa akaunti' : 'Zima akaunti', 'warn', async () => {
+          try { await api(`/api/admin/users/${u.uid}/disable`, { method: 'POST', body: { disabled: !u.disabled } }); loadUsers(); } catch (e) { toast(e.message, 'err'); }
+        });
+        mk('Futa', 'danger', async () => {
+          if (!confirm('Futa ' + u.email + ' pamoja na bot yake? Hili haliwezi kurudishwa.')) return;
+          try { await api('/api/admin/users/' + u.uid, { method: 'DELETE' }); toast('Imefutwa.', 'ok'); loadUsers(); } catch (e) { toast(e.message, 'err'); }
+        });
+        tr.lastElementChild.appendChild(acts);
+      }
+      body.appendChild(tr);
+    });
+  } catch (e) { toast(e.message, 'err'); }
+}
+</script>
+</body>
+</html>
