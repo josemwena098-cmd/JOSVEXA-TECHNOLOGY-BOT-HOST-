@@ -38,3 +38,15 @@ bot ina-restart > console ya live, command box, na Washa / Restart / Zima.
 - API ina limit ya requests 120/dakika kwa key; seva ina cache ndogo kwa logs na status kulinda hilo.
 - Majina ya runtime (`nodejs`, `python`) yakikataliwa, rekebisha `RUNTIME_NODE` / `RUNTIME_PYTHON` kwenye `.env`.
 - Bot yako isome namba kwa `process.env.PHONE_NUMBER` (Node) au `os.environ["PHONE_NUMBER"]` (Python).
+
+## Kuweka kwenye GitHub na kudeploy (bila kuvujisha siri)
+**Pakia GitHub:** `server.js`, `package.json`, `database.rules.json`, `README.md`, `.gitignore`, `.env.example` na folda `public/`.
+**USIPAKIE:** `.env` na `serviceAccount.json`. Ukipakia kwa website ya GitHub (drag and drop), `.gitignore` haikuzuii, kwa hiyo usichague faili hizo mwenyewe.
+
+**Kwenye hosting**, weka variables hizi (Environment variables) badala ya `.env`:
+`BH_API_KEY`, `ADMIN_EMAIL`, `FIREBASE_DATABASE_URL`, `FIREBASE_WEB_API_KEY`,
+`FIREBASE_SERVICE_ACCOUNT_JSON` (yaliyomo yote ya serviceAccount.json), `RUNTIME_NODE`, `RUNTIME_PYTHON`.
+`PORT` mara nyingi hutolewa na hosting yenyewe; usiiweke ikiwa hosting inaiweka.
+Build/install command: `npm install`. Start command: `npm start` (au `node server.js`). Node 18 au zaidi.
+
+Repo ikiwa public (bot-hosting.net inasoma repo za public tu), hakikisha haina siri yoyote ndani yake.
